@@ -1,6 +1,6 @@
 [build]
   command = "npm run build:verify"
-  publish = "dist"
+  publish = "frontend/dist"
 
 [build.environment]
   NODE_VERSION = "20.19.0"
@@ -77,7 +77,7 @@
     Content-Type = "image/jpeg"
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Service worker must never be cached — browsers need to check for updates
+# Service worker must never be cached - browsers need to check for updates
 [[headers]]
   for = "/sw.js"
   [headers.values]

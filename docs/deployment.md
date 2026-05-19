@@ -6,10 +6,10 @@
 
 ## Netlify
 - Build command: npm run build:verify
-- Publish directory: dist
+- Publish directory: frontend/dist
 - SPA redirect to /index.html
 - Cache headers set for assets, service worker, and manifest
-- Production API URLs set in frontend/netlify.toml
+- Production API URLs set in netlify.toml
 
 ## Render
 - Backend deployed as a Node service

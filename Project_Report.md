@@ -85,6 +85,7 @@ The frontend is configured for Netlify, while the backend is configured for Rend
 
 ```text
 S72_Gaurav_Capstone_KampusKart/
+  netlify.toml
   docs/
     README.md
     architecture.md
@@ -126,7 +127,6 @@ S72_Gaurav_Capstone_KampusKart/
       config.ts
     package.json
     vite.config.ts
-    netlify.toml
 
   backend/
     config/
@@ -802,12 +802,12 @@ Runs every 14 minutes and pings the backend health endpoint. This helps reduce R
 
 ### Netlify Configuration
 
-File: `frontend/netlify.toml`
+File: `netlify.toml`
 
 Defines:
 
 - Build command: `npm run build:verify`
-- Publish directory: `dist`
+- Publish directory: `frontend/dist`
 - Production API and socket URLs
 - SPA fallback redirect to `index.html`
 - Cache headers for static assets
