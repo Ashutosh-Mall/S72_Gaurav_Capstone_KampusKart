@@ -23,6 +23,10 @@ type AdminUser = {
   dateOfBirth?: string | null;
   createdAt?: string;
   isAdmin?: boolean;
+  profilePicture?: {
+    url?: string;
+    public_id?: string;
+  };
 };
 
 type UserFormState = {
@@ -249,9 +253,17 @@ const AdminUsers = () => {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#181818] text-white flex-shrink-0">
-                        <FiUser className="w-5 h-5" />
-                      </div>
+                      {entry.profilePicture?.url ? (
+                        <img
+                          src={entry.profilePicture.url}
+                          alt={entry.name}
+                          className="h-12 w-12 rounded-xl object-cover flex-shrink-0 border-2 border-gray-100"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#181818] text-white flex-shrink-0">
+                          <FiUser className="w-5 h-5" />
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <h2 className="text-base font-bold text-black truncate">{entry.name}</h2>
                         <p className="text-sm text-gray-500 truncate">{entry.email}</p>
@@ -358,7 +370,7 @@ const AdminUsers = () => {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="grid gap-2 text-sm font-medium text-gray-700">
                       Year
-                      <input
+                      <select
                         value={formData.yearOfStudy}
                         onChange={(event) =>
                           setFormData((current) => ({
@@ -366,29 +378,54 @@ const AdminUsers = () => {
                             yearOfStudy: event.target.value,
                           }))
                         }
-                        className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7]"
-                      />
+                        className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7] bg-white"
+                      >
+                        <option value="">Not set</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="5th Year">5th Year</option>
+                        <option value="Graduate">Graduate</option>
+                      </select>
                     </label>
                     <label className="grid gap-2 text-sm font-medium text-gray-700">
                       Gender
-                      <input
+                      <select
                         value={formData.gender}
                         onChange={(event) =>
                           setFormData((current) => ({ ...current, gender: event.target.value }))
                         }
-                        className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7]"
-                      />
+                        className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7] bg-white"
+                      >
+                        <option value="">Not set</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
                     </label>
                   </div>
                   <label className="grid gap-2 text-sm font-medium text-gray-700">
                     Program
-                    <input
+                    <select
                       value={formData.program}
                       onChange={(event) =>
                         setFormData((current) => ({ ...current, program: event.target.value }))
                       }
-                      className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7]"
-                    />
+                      className="h-11 rounded-xl border-2 border-gray-200 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#00C6A7] bg-white"
+                    >
+                      <option value="">Not set</option>
+                      <option value="B.Tech">B.Tech</option>
+                      <option value="M.Tech">M.Tech</option>
+                      <option value="MBA">MBA</option>
+                      <option value="BBA">BBA</option>
+                      <option value="B.Des">B.Des</option>
+                      <option value="M.Des">M.Des</option>
+                      <option value="BFA">BFA</option>
+                      <option value="B.Sc">B.Sc</option>
+                      <option value="M.Sc">M.Sc</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </label>
                   <label className="grid gap-2 text-sm font-medium text-gray-700">
                     Date of Birth
