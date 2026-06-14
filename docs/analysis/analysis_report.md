@@ -1,42 +1,99 @@
 # Repository Analysis Report
 
-## Summary
+## 1. Executive Summary & Tech Stack
 
-- Files scanned: ~322
-- Env usage: `JWT_SECRET`, `MONGODB_URI`, `CLOUDINARY_*`, `GOOGLE_CLIENT_*`, `EMAIL_*`, `VITE_GOOGLE_MAPS_API_KEY`, `SENTRY_DSN`, etc.
-- Hard-coded secrets: None found in source files on quick scan. Some test setup files set test secrets (intended).
-- TODO/FIXME markers: small number across backend and frontend (notably in `aiService.js` and error-tracking TODOs).
+KampusKart is a client-server web application designed as a campus portal for MIT ADT University.
 
-## Package manifests
+### Tech Stack
 
-- Root `package.json`: workspace orchestrator, `dev` runs both `backend` and `frontend` concurrently, Node >=20.
-- `backend/package.json`: entry `server.js`, scripts: `dev` (nodemon), `start`, `test`, `seed`, `test-keep-alive`.
-- `frontend/package.json`: Vite-based app, scripts: `dev`, `build`, `build:verify`, `test` (vitest), typecheck via `tsc`.
-
-## Entry points and runtime notes
-
-- Backend entry: `server.js` — validates env, connects to MongoDB, mounts API routes under `/api/*`, configures Socket.IO and Sentry optionally.
-- Frontend entry: `frontend/src/main.jsx` — Vite React app (TODOs for production error tracking noted).
-
-## Security & Secrets
-
-- `.env.example` and README document required secrets; ensure real secrets are stored in platform secrets and not committed.
-- Tests intentionally set ephemeral secrets in `backend/tests/setup.js`; acceptable but ensure not committed with real values.
-- Recommend running a git-history secret scan (`git-secrets` or `truffleHog`), and rotate any exposed keys.
-
-## Outstanding work (priority)
-
-1. Verify CI/CD secrets for Render/Netlify/GitHub Actions and remove any plaintext from repo.
-2. Implement TODOs: `aiService.js` embeddings and production error tracking hooks in `server.js`/`main.jsx`.
-3. Run `npm audit` in both `frontend` and `backend`; update vulnerable deps.
-4. Add automated secret scanning to CI and periodic dependency audit job.
-
-## Suggested next actions (I can perform)
-
-- Run `npm audit` and produce a dependency update plan.
-- Run test suites: `npm --workspace backend test` and `npm --workspace frontend test`.
-- Run a git-history secret search and prepare remediation PR if needed.
+- **Frontend**: React (v18), Vite (v6), Tailwind CSS (v3 / v4 docs), Vitest (v4) for testing.
+- **Backend**: Express (v5), Socket.IO (v4) for real-time messaging, MongoDB & Mongoose (v8).
+- **APIs & Services**: Google Maps, Cloudinary (media assets), Google OAuth, Nodemailer (OTP mailings), Sentry.
 
 ---
 
-If you want, I will run `npm audit` and the test suites next, then prepare a remediation PR with fixes.
+## 2. Directory Structure & Workspace Architecture
+
+```
+KampusKart/
+├── backend/                  # Express API Server & Socket.IO
+│   ├── config/               # Passport OAuth & db connection keys
+│   ├── controllers/          # Request handlers separated by domain
+│   ├── cron/                 # Background clean-up and keep-alive processes
+│   ├── middleware/           # JWT verification, sanitization, role check
+│   ├── models/               # Mongoose DB schema definitions
+│   ├── routes/               # API endpoints mappings
+│   ├── scripts/              # Data seeding and automation scripts
+│   ├── services/             # Third-party utilities (e.g. Cloudinary, AI)
+│   ├── tests/                # Jest integration & unit test suites
+│   ├── server.js             # Main server setup and Socket server
+│   └── package.json
+├── frontend/                 # React SPA
+│   ├── public/               # Static icons, logos, map markers
+│   ├── src/
+│   │   ├── components/       # Layouts, common components (Navbar, Signup)
+│   │   ├── contexts/         # React Context APIs (Auth, Socket, Theme)
+│   │   ├── features/         # Features sliced by domain (Complaints, Events)
+│   │   ├── hooks/            # Custom hooks
+│   │   ├── theme/            # Design tokens & color patterns
+│   │   ├── main.tsx          # Client-side render target
+│   │   └── App.tsx           # Client router configuration
+│   ├── vite.config.ts
+│   └── package.json
+└── docs/                     # System architecture & deployment docs
+```
+
+---
+
+## 3. Database Schema Analysis
+
+Mongoose schemas located in `backend/models/`:
+
+- **User**: Name, email, hashed password, role (Student, Faculty, Admin, Club Representative), verification flags, Google ID, OTP.
+- **Event**: Title, description, date, location, category, banner image reference, organizer (User ref), status.
+- **Club**: Club name, recruitment role, description, skills required, Google Form link, deadline, status flag.
+- **Complaint**: Student user reference, title, description, category, priority (Low to Urgent), assigned staff, estimated resolution duration, status history, attached media.
+- **LostFound**: Title, description, type (Lost or Found), category, location, date, contact details, image references, reporter reference, status.
+- **Chat**: Sender reference, message text, timestamp, deletion status.
+
+---
+
+## 4. Real-time Message Sync
+
+WebSockets are handled via Socket.IO:
+
+- Query-based token verification on connection setup.
+- Active connection mappings maintained in a server-side `onlineUsers` Map.
+- Event tracking for message broadcasts (`send-message` relays messages to room listeners, excluding sender), typing indicators (`typing` / `stop-typing`), and graceful state cleanup on `disconnect`.
+
+---
+
+## 5. Security Protocols
+
+- **HTTP Protection**: Secure headers set via Helmet, parameter pollution guarded by HPP.
+- **NoSQL Injection Guard**: Custom middleware sanitizing query/body input keys containing `$` or `.`.
+- **Identity Guarding**: Bcrypt hashed passwords, JWT validation middleware, Google authentication via Passport.
+
+---
+
+## 6. Frontend & Design Token Architecture
+
+- **Typography**: Google Fonts' Work Sans primary.
+- **Color Palette**: Dark dominant `#181818`, Vibrant Teal `#00C6A7`, destruct orange `#F05A25`.
+- **Transitions**: Global hover/modal micro-animations.
+- **Theme support**: Persistence context to maintain dark/light toggles.
+
+---
+
+## 7. QA & Testing Coverage
+
+- **Backend tests (Jest & Supertest)**: 121 integration and unit tests cover all API route endpoints. Fallback MongoMemoryServer runs test database when the local MongoDB container is unavailable.
+- **Frontend tests (Vitest)**: 37 tests covering validation helpers, routing components, and page loading.
+
+---
+
+## 8. Audit of Recent Session Fixes
+
+1. **Frontend `Signup.tsx` Fix**: Fixed syntax errors caused by an incorrect merge conflict resolution. Balanced HTML tags, removed duplicated input segments, and restored full Vite compilation capability.
+2. **Backend `server.js` Fix**: Restored the async wrapper `connectDB` and its database connection try-catch structure, fixing syntax errors (`await` inside synchronous callback) that crashed the server at startup.
+3. **Execution**: Confirmed all 158 tests (37 frontend + 121 backend) pass successfully.

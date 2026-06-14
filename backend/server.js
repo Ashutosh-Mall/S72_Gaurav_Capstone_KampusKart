@@ -232,11 +232,11 @@ app.use((req, res) => {
 });
 
 // MongoDB Connection
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
-    
+
     // Check if seeding is needed (e.g., if no facilities exist)
     const Facility = require('./models/Facility');
     const facilityCount = await Facility.countDocuments();
@@ -254,7 +254,7 @@ mongoose
     startKeepAlive();
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    
+
     if (process.env.NODE_ENV === 'development') {
       console.log('Attempting to start MongoDB Memory Server as fallback...');
       try {
@@ -262,10 +262,10 @@ mongoose
         const mongoServer = await MongoMemoryServer.create();
         const mongoUri = mongoServer.getUri();
         console.log('MongoDB Memory Server started at:', mongoUri);
-        
+
         await mongoose.connect(mongoUri);
         console.log('Connected to MongoDB Memory Server');
-        
+
         // Auto-seed memory DB
         console.log('Seeding dummy data into Memory Server...');
         try {
